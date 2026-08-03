@@ -14,7 +14,6 @@ The drone operates within a continuous action space and experiences real-time ph
 - **Wall Drag Effect:** Proximity to cavern boundaries induces exponential aerodynamic pull modeled by:
   $$F_{\text{drag}} = \alpha \cdot e^{-\beta \cdot d_{\text{wall}}}$$
 
-
 ## 📊 Reward Function Design
 
 To enforce safe navigation and optimal velocity convergence, the agent is trained under a multi-objective reward formulation:
@@ -29,11 +28,11 @@ $$R_t = w_1 \cdot R_{\text{progress}} - w_2 \cdot P_{\text{proximity}} - w_3 \cd
 
 ## 💻 Project Structure
 
-├── evaluate_agent.py        # Evaluation pipeline for trained DRL policies
-├── test_env.py             # Sandbox for verifying physical constraints
+├── evaluate_agent.py # Evaluation pipeline for trained DRL policies
+├── test_env.py # Sandbox for verifying physical constraints
 ├── ppo_cave_pilot_final.zip # Serialized trained PPO model weights
-├── requirements.txt         # Managed dependencies list
-└── README.md                # System documentation
+├── requirements.txt # Managed dependencies list
+└── README.md # System documentation
 
 ## ⚡ Quick Start & Evaluation
 
@@ -49,4 +48,3 @@ pip install -r requirements.txt
 3. **Run the evaluation script:**
 
 python evaluate_agent.py
-
