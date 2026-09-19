@@ -1,0 +1,82 @@
+services:
+  # 1. خدمة الـ Backend (FastAPI & DRL Simulation)
+  # 1. خدمة الـ Backend
+  backend:
+    image: aerocave-backend:latest
+    container_name: aerocave_backend_container
+    restart: always
+    command: uvicorn api_server:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://cave_admin:CavePilotPass2026@postgres_db:5432/aerocave_telemetry
+      - ENV_MODE=production
+    volumes:
+      - .:/app
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    networks:
+      - aerocave_network
+  # 2. خدمة واجهة الويب التفاعلية (React Frontend)
+  # 2. خدمة الـ Frontend
+  frontend-web:
+    build:
+      context: ./frontend-web
+      dockerfile: Dockerfile
+    image: cavepilot-amd-frontend-web:latest
+    container_name: aerocave_frontend_container
+    restart: always
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000
+    networks:
+      - aerocave_network
+  # 3. قاعدة البيانات لحفظ بيانات الرحلات والتجارب (PostgreSQL)
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: aerocave_postgres_container
+    restart: always
+    environment:
+      - POSTGRES_USER=cave_admin
+      - POSTGRES_PASSWORD=CavePilotPass2026
+      - POSTGRES_DB=aerocave_telemetry
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cave_admin -d aerocave_telemetry"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - aerocave_network
+
+  # 4. محرك الأتمتة وإرسال التقارير وتنبيهات الطوارئ (n8n)
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: aerocave_n8n_container
+    restart: always
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=CavePilotN8n2026
+    networks:
+      - aerocave_network
+
+volumes:
+  postgres_data:
+    driver: local
+  n8n_data:
+    driver: local
+
+networks:
+  aerocave_network:
+    driver: bridge

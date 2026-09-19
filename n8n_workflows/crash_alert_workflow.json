@@ -1,0 +1,42 @@
+{
+  "name": "AeroCave Crash Alert Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "drone-crash-alert",
+        "options": {}
+      },
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "text": "=🚨 **CRASH ALERT DETECTED** 🚨\n\n**Flight ID:** {{ $json.body.flight_id }}\n**Coordinates:** X: {{ $json.body.x }}, Y: {{ $json.body.y }}, Z: {{ $json.body.z }}\n**Battery Level:** {{ $json.body.battery }}%\n**Status:** Immediate Emergency Intervention Required!",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "name": "Send Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [500, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

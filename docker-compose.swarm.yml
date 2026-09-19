@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  # موازن الأحمال (Traefik Load Balancer)
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080" # لوحة تحكم Traefik
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik.yml:/etc/traefik/traefik.yml
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    networks:
+      - aerocave_swarm_net
+
+  # خدمة الـ Backend الموزعة مع خاصية التوسع الآلي (Auto-scaling)
+  backend:
+    image: aerocave-backend:latest
+    command: uvicorn api_server:app --host 0.0.0.0 --port 8000
+    environment:
+      - DATABASE_URL=postgresql://cave_admin:CavePilotPass2026@postgres_db:5432/aerocave_telemetry
+      - ENV_MODE=production
+    deploy:
+      replicas: 3 # تشغيل 3 نسخ متوازية للتوزيع والتوسع
+      update_config:
+        parallelism: 1
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.backend.rule=Host(`api.aerocave.local`)"
+        - "traefik.http.routers.backend.entrypoints=web"
+        - "traefik.http.services.backend.loadbalancer.server.port=8000"
+    networks:
+      - aerocave_swarm_net
+
+  # خدمة الـ Frontend الموزعة
+  frontend-web:
+    image: cavepilot-amd-frontend-web:latest
+    deploy:
+      replicas: 2 # تشغيل نسختين للتجاوب العالي
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.frontend.rule=Host(`app.aerocave.local`)"
+        - "traefik.http.routers.frontend.entrypoints=web"
+        - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    networks:
+      - aerocave_swarm_net
+
+networks:
+  aerocave_swarm_net:
+    driver: overlay
