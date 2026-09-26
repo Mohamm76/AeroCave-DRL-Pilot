@@ -1,3 +1,4 @@
+
 -- database/init.sql
 
 -- إنشاء جدول سجلات الطيران (Flight Logs)

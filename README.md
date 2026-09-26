@@ -1,50 +1,73 @@
-# AeroCave-DRL-Pilot: Autonomous Drone Navigation in Turbulent Caverns 🚀
+# 🚁 AeroCave-DRL-Pilot
 
-An end-to-end Deep Reinforcement Learning (DRL) framework developed using **Stable-Baselines3** and **Gym** to train autonomous drone agents in continuous control navigation tasks. The framework features a custom-engineered 3D physics cave environment built to simulate dynamic atmospheric anomalies and complex aerodynamic boundary limitations.
+[![Python 3.10](https://img.shields.io/badge/Python-3.10-blue.svg?logo=python&logoColor=white)](https://python.org)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Framework-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-18.0-61DAFB.svg?logo=react&logoColor=black)](https://reactjs.org)
+[![Docker Swarm](https://img.shields.io/badge/Docker-Swarm_Orchestrated-2496ED.svg?logo=docker&logoColor=white)](https://docker.com)
+[![MLOps](https://img.shields.io/badge/MLOps-n8n_%26_PostgreSQL-FF6C37.svg)](https://n8n.io)
+[![Status](https://img.shields.io/badge/Status-Production_Ready-success.svg)]()
 
-## 🔬 System Architecture & Physics Simulation
+> **Full-Stack MLOps & Deep Reinforcement Learning Autonomous Navigation System for GPS-Denied Industrial Environments.**
 
-The drone operates within a continuous action space and experiences real-time physical perturbations within highly restrictive cavern profiles.
+---
 
-- **Action Space ($A$):** Continuous inputs controlling continuous vertical thrust and multi-axis horizontal accelerations: $\mathcal{A} \in [-1, 1]^3$.
-- **Observation Space ($S$):** A 7-dimensional telemetry vector mapping spatial tracking:
-  $$S = [x, y, v_x, v_y, d_{\text{wall}}, d_{\text{top}}, d_{\text{base}}]$$
-- **Dynamic Anomalies:** Local gravity is modeled fluidly to simulate cave wind shears via:
-  $$g_{\text{eff}} = g_{\text{base}} + \sin(0.5t) \cdot \cos(v_y)$$
-- **Wall Drag Effect:** Proximity to cavern boundaries induces exponential aerodynamic pull modeled by:
-  $$F_{\text{drag}} = \alpha \cdot e^{-\beta \cdot d_{\text{wall}}}$$
+## 📌 Executive Summary
 
-## 📊 Reward Function Design
+**AeroCave-DRL-Pilot** is an enterprise-grade autonomous drone navigation and telemetry monitoring ecosystem designed for indoor GPS-denied applications (e.g., airport hangars, deep caves, utility tunnels, and automated logistics warehouses).
 
-To enforce safe navigation and optimal velocity convergence, the agent is trained under a multi-objective reward formulation:
+The platform blends **Deep Reinforcement Learning (PPO)** for dynamic trajectory planning, **FastAPI WebSockets** for low-latency state-streaming (20 FPS), **React Three.js** for interactive 3D flight visualization, and an auto-scalable **Docker Swarm & Traefik** infrastructure.
 
-$$R_t = w_1 \cdot R_{\text{progress}} - w_2 \cdot P_{\text{proximity}} - w_3 \cdot P_{\text{collision}}$$
+---
 
-| Component             | Target Objective                             | Mathematical Formulation                                                      |
-| :-------------------- | :------------------------------------------- | :---------------------------------------------------------------------------- |
-| **Progress Reward**   | Maximize forward velocity along the track    | $R_{\text{progress}} = v_x \cdot \cos(\theta)$                                |
-| **Proximity Penalty** | Discourage flying close to cavern walls      | $P_{\text{proximity}} = \exp(- \gamma \cdot d_{\text{wall}})$                 |
-| **Collision Penalty** | Strict terminal penalty upon boundary impact | $P_{\text{collision}} = -100 \quad (\text{if } d_{\text{wall}} \le \epsilon)$ |
+## 📚 System Documentation Structure
 
-## 💻 Project Structure
+For detailed technical specifications, refer to our modular documentation guides:
 
-├── evaluate_agent.py # Evaluation pipeline for trained DRL policies
-├── test_env.py # Sandbox for verifying physical constraints
-├── ppo_cave_pilot_final.zip # Serialized trained PPO model weights
-├── requirements.txt # Managed dependencies list
-└── README.md # System documentation
+- 📐 [**System Architecture & DRL Core**](./docs/ARCHITECTURE.md) - Deep learning pipelines, Gymnasium 3D environment, and PPO agent reward structure.
+- 📡 [**API & Real-Time Telemetry Specs**](./docs/API_DOCS.md) - REST endpoints, Swagger UI, and WebSocket packet payloads.
+- 🛠️ [**MLOps & Distributed Infrastructure**](./docs/MLOPS_INFRASTRUCTURE.md) - Multi-node orchestration via Docker Swarm, Traefik load balancing, and PostgreSQL/pgAdmin logging.
+- 🚀 [**Deployment & Setup Guide**](./docs/DEPLOYMENT_GUIDE.md) - Step-by-step instructions for running locally or deploying on cloud clusters.
 
-## ⚡ Quick Start & Evaluation
+---
 
-1. **Clone the repository:**
+## 📸 Technical Proof & System Visuals
 
+### 1. Real-Time Telemetry & LiDAR Readouts
+
+![Telemetry Cards Status](./docs/assets/telemetry_live_stream_cards.png)
+_Figure 1: Real-time telemetry dashboard monitoring (X, Y, Z) spatial orientation, battery health, reward trends, and 4-directional LiDAR distance readouts._
+
+### 2. Interactive 3D Flight & Tunnel Navigation
+
+![React 3D Tunnel View](./docs/assets/react_3d_tunnel_view.png)
+_Figure 2: Three.js interactive 3D canvas displaying drone pose and boundary constraints in real time._
+
+### 3. Mobile Field Client (React Native & Expo)
+
+![Expo QR Metro Bundler](./docs/assets/mobile_app_expo_qr.png)
+_Figure 3: Metro Bundler console output providing immediate Expo QR code integration for field operations._
+
+### 4. Enterprise Containerization (Docker Compose)
+
+![Docker Compose Running Containers](./docs/assets/docker_compose_containers_running.png)
+_Figure 4: Automated multi-container orchestration bringing up Web Frontend, FastAPI Backend, PostgreSQL database, and n8n engine._
+
+### 5. Multi-Node Production Orchestration (Docker Swarm)
+
+![Docker Swarm Cluster Deploy](./docs/assets/docker_swarm_cluster_deploy.png)
+_Figure 5: Active Swarm Manager initializing `aerocave_stack` with dynamic Traefik reverse-proxy routing and auto-scaled service replicas._
+
+---
+
+## ⚡ Quick Start (Docker Compose)
+
+Launch the entire stack locally with a single command:
+
+```bash
+# Clone the repository
 git clone [https://github.com/Mohamm76/AeroCave-DRL-Pilot.git](https://github.com/Mohamm76/AeroCave-DRL-Pilot.git)
 cd AeroCave-DRL-Pilot
 
-2. **Install dependencies:**
-
-pip install -r requirements.txt
-
-3. **Run the evaluation script:**
-
-python evaluate_agent.py
+# Build and start all services
+docker compose up -d --build
+```
