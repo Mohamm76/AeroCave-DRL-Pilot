@@ -1,4 +1,3 @@
-```markdown
 # 🛠️ MLOps Infrastructure & Container Orchestration
 
 This document details the multi-container deployment architecture, Docker Swarm orchestration, Traefik dynamic load balancing, and logging pipeline for **AeroCave-DRL-Pilot**.
@@ -8,42 +7,12 @@ This document details the multi-container deployment architecture, Docker Swarm 
 ## 1. Container Infrastructure Architecture
 
 The system is fully containerized and orchestrated using Docker Swarm for high availability and service scaling in production, with Docker Compose supported for local development.
-```
 
-```
-                             [ Incoming Traffic ]
-                                      |
-                                      v
-                          +-----------------------+
-                          |   Traefik Reverse     |
-                          |   Proxy & Load Bal.   |
-                          +-----------------------+
-                               /             \
-               [http://app.local](http://app.local)               ws://api.local
-                     /                               \
-                    v                                 v
-    +-------------------------------+   +-------------------------------+
-    |  Web Dashboard (React 3D)     |   |   FastAPI Service (Scale: x3) |
-    |  Replica 1 | Replica 2        |   |   Replica 1 | Replica 2 | ... |
-    +-------------------------------+   +-------------------------------+
-                    \                                 /
-                     +---------------+---------------+
-                                     |
-                                     v
-                    +-------------------------------+
-                    |  PostgreSQL Database & pgAdmin|
-                    |  (Telemetry Logs & Storage)   |
-                    +-------------------------------+
-                                     |
-                                     v
-                    +-------------------------------+
-                    |    n8n Workflow Engine        |
-                    |  (Automated Event Alerts)     |
-                    +-------------------------------+
-
-```
-
-```
+- **Traefik Reverse Proxy**: Dynamic routing & Load balancing
+- **Web Dashboard (React 3D)**: High availability replicas
+- **FastAPI Service**: Scalable ASGI instances
+- **PostgreSQL Database & pgAdmin**: Telemetry log storage
+- **n8n Workflow Engine**: Automated event alerts
 
 ---
 
@@ -76,9 +45,5 @@ System telemetry data, agent actions, and evaluation logs are asynchronously sav
 
 System credentials, database connection strings, and WebSocket ports are managed through secured environment variables (`.env`).
 
-![Security Environment Setup](./assets/security_env_setup.png)
+![Security Environment Setup](./assets/env_code_config.png)
 *Figure 3: Secure environment variable mapping and configuration validation.*
-
-```
-
----
